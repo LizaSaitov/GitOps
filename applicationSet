@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: example-applicationset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: dev
+            team: team-a
+          - cluster: qa
+            team: team-a
+  template:
+    metadata:
+      name: '{{team}}-{{cluster}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/elevy99927/argo-demo-repo.git
+        targetRevision: example-1-appset
+        path: '{{team}}/k8s-{{cluster}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{team}}-{{cluster}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
