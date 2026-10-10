@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: example-applicationset
+  namespace: argocd
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev
+            team: team-l
+          - env: qa
+            team: team-l
+          - env: prd
+            team: team-l
+          - env: test
+            team: team-l
+          - env: deploy
+            team: team-l
+  template:
+    metadata:
+      name: '{{team}}-{{env}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/LizaSaitov/GitOps.git
+        targetRevision: apllicationset-lab 
+        path: '{{team}}/k8s-{{env}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{team}}-{{env}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
